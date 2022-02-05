@@ -280,7 +280,7 @@ export const Etusivu: React.FC<Props> = () => {
                         <p>Turun avoin data käyttölupa: <a href='https://www.turku.fi/avoindata/lupa' target={"_blank"}>https://www.turku.fi/avoindata/lupa</a></p>
                         <div className='github'>
                             <p>Lähdekoodi :</p>
-                            <a href=''><img src={githubLogo}></img></a>
+                            <a href='https://github.com/Akaseli/turunrakennukset' target={"_blank"}><img src={githubLogo}></img></a>
                         </div>
 
                     </div>
