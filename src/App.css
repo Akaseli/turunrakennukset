@@ -5,10 +5,135 @@ body {
 
 .leaflet-container{
     margin: auto;
-    width: 97vw;
-    height: 70vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
 }
 
+@media screen and (max-width: 500px){
+    .options{
+        width: 100%;
+    }
+
+    .options.deactive{
+        left: -100%;
+        transition: 400ms;
+    }
+
+    .menuControl.out{
+        left: 92%;
+        transition: 400ms;
+    }
+}
+
+@media screen and (min-width: 500px){
+    .options{
+        width: 400px;
+    }
+
+    .options.deactive{
+        left: -410px;
+        transition: 400ms;
+    }
+
+    .menuControl.out{
+        left: 370px;
+        transition: 400ms;
+    }
+}
+
+.options{
+    position: fixed;
+    z-index: 10;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    top: 0;
+    background-color: black;
+    color: white;
+    height: 100%;
+}
+
+.menuControl{
+    position: fixed;
+    top: 0px;
+    padding: 5px;
+    z-index: 11;
+    width: 30px;
+    height: 30px;
+    background-color: black;
+    border-bottom-right-radius: 1rem;
+}
+
+.menuControl img{
+    filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(208deg) brightness(101%) contrast(103%);
+}
+
+.menuControl.in{
+    left: 0;
+    transition: 400ms;
+}
+
+.options.active{
+    left: 0;
+    transition: 400ms;
+}
+
+.options h2{
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.options p{
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.options input, select{
+    width: 250px;
+    color: white;
+    background-color: rgb(53, 53, 53);
+}
+
+.options button{
+    margin-top: 10px;
+    background-color: rgb(53, 53, 53);
+    color: white;
+    padding: 5px;
+    width: 100px;
+}
+
+.options button:hover, input:hover, select:hover{
+    background-color: rgb(65, 65, 65);
+}
+
+.options a{
+    color: rgb(235, 235, 235);   
+}
+
+.options a:hover{
+    color: rgb(255, 255, 255);   
+}
+
+
+.options .bottom{
+    position: absolute;
+    bottom: 25px;
+    color: rgb(122, 122, 122);
+}
+
+.bottom .github *{
+    margin-top: 0;
+    margin-bottom: 0;
+    display: inline-block;
+    height: 40px;
+    vertical-align: middle;
+    line-height: 40px;
+    margin-right: 10px;
+    text-align: center;
+}
 
 .content{
     margin: 10px;
@@ -20,4 +145,11 @@ body {
 
 .popup h3{
     margin-bottom: 4px;
+}
+
+.options .note{
+    color: rgb(70, 70, 70);
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-size: small;
 }
