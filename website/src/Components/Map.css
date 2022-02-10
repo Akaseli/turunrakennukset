@@ -1,0 +1,8 @@
+.leaflet-container{
+    width: 100%;
+    height: 100vh;
+}
+
+.popup p, h3{
+    margin: 2px;
+}
