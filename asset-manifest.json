@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/turunrakennukset/static/css/main.463f818c.css",
-    "main.js": "/turunrakennukset/static/js/main.63e515fb.js",
+    "main.js": "/turunrakennukset/static/js/main.cedfd7d6.js",
     "index.html": "/turunrakennukset/index.html",
     "main.463f818c.css.map": "/turunrakennukset/static/css/main.463f818c.css.map",
-    "main.63e515fb.js.map": "/turunrakennukset/static/js/main.63e515fb.js.map"
+    "main.cedfd7d6.js.map": "/turunrakennukset/static/js/main.cedfd7d6.js.map"
   },
   "entrypoints": [
     "static/css/main.463f818c.css",
-    "static/js/main.63e515fb.js"
+    "static/js/main.cedfd7d6.js"
   ]
 }
