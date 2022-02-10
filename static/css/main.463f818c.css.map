@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/main.463f818c.css","mappings":"AAAA,mBAEI,YAAa,CADb,UAEJ,CAEA,YACI,UACJ","sources":["Components/Map.css"],"sourcesContent":[".leaflet-container{\r\n    width: 100%;\r\n    height: 100vh;\r\n}\r\n\r\n.popup p, h3{\r\n    margin: 2px;\r\n}"],"names":[],"sourceRoot":""}
