@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "nodemon server.js",
     "website": "npm start --prefix website",
     "dev": "concurrently \"npm run start\" \"npm run website\""
   },
