@@ -3,7 +3,6 @@ const { Pool } = require('pg');
 const cors = require('cors')
 const NodeCache = require('node-cache');
 const dbUpdate = require('./databaseUpdate');
-const res = require('express/lib/response');
 
 const app = express();
 
