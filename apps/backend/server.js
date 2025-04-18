@@ -1,16 +1,17 @@
-const express = require('express');
-const { Pool } = require('pg');
-const cors = require('cors')
-const NodeCache = require('node-cache');
-const dbUpdate = require('./databaseUpdate');
-
+import express from 'express';
+import pg from 'pg';
+import cors from 'cors';
+import NodeCache from 'node-cache';
+import { update } from './databaseUpdate.js';
 const app = express();
+
+const { Pool } = pg
 
 //24 tuntia
 const updateData = setInterval(update, 86400000);
 
-function update(){
-    dbUpdate.update(false);
+function StartUpdate(){
+    update(false);
     dataUpdated = Date.now()
 }
 
@@ -36,12 +37,12 @@ const corsOptions = {
 };
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'buildings',
-    password: 'Rasti123',
-    port: 5432
-});
+  user: process.env.DBUSER,
+  host: process.env.DBHOST,
+  database: process.env.DBNAME,
+  password:  process.env.DBPASS,
+  port: process.env.DBPORT
+})
 
 app.get('/buildings', cors(corsOptions), (req, res) => {
     if(cache.get(req.url)){
@@ -80,6 +81,6 @@ app.get('/info', cors(corsOptions), (req, res) => {
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
-    dbUpdate.update();
+    StartUpdate()
     dataUpdated = Date.now()
 });

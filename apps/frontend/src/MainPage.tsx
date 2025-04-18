@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Box } from '@mui/system';
 import { Map } from './Components/Map';
 import axios from 'axios';
 import { Building, Selection } from './interfaces';
 import { Navigation } from './Components/Navigation';
+import { Box } from '@mui/material';
 
 export const MainPage = () => {
     const [buildings, setBuildings] = useState<Building[]>([]);
