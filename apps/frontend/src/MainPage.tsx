@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Map } from './Components/Map';
+import { Map } from './components/Map';
 import axios from 'axios';
 import { Building, Selection } from './interfaces';
-import { Navigation } from './Components/Navigation';
+import { Navigation } from './components/Navigation';
 import { Box } from '@mui/material';
 
 export const MainPage = () => {
@@ -24,7 +24,7 @@ export const MainPage = () => {
 
     useEffect(() => {
         //Käyttötarkoitukset
-        axios.get("http://localhost:4000/info")
+        axios.get("/api/info")
             .then((response) => {
                 if(response.status !== 200) return;
 
@@ -33,7 +33,7 @@ export const MainPage = () => {
             })
 
         //Rakennukset
-        axios.get("http://localhost:4000/buildings")
+        axios.get("/api/buildings")
             .then((response) => {
                 if (response.status !== 200) return;
 

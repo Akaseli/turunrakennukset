@@ -6,8 +6,6 @@ import axios from 'axios';
 
 const { Pool } = pg
 
-
-
 const pool = new Pool({
     user: process.env.DBUSER,
     host: process.env.DBHOST,
@@ -52,7 +50,14 @@ function parsePoint(list){
       
       return (latlngParts[1] + "," + latlngParts[0]);
     }
+}
 
+function parseRawPoint(x: number, y: number){
+  proj4.defs("EPSG:3877","+proj=tmerc +lat_0=0 +lon_0=23 +k=1 +x_0=23500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
+
+  let latlngParts = proj4("EPSG:3877").inverse([y, x]);
+      
+  return (latlngParts[1] + "," + latlngParts[0]);
 }
 
 function mapUsage(usage){
@@ -165,54 +170,148 @@ function mapUsage(usage){
 
 
 export async function update(returnData){
-    console.log("Updating database...")
-    await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=bldg:Building_LOD0&maxFeatures=9999999')
-    .then(async (response) => {
-        if(response.status != 200) return; 
+  console.log("Updating database...")
+  //Luodaan tarvittaessa
+  await pool.query(`CREATE TABLE IF NOT EXISTS building_info(
+    id text PRIMARY KEY, 
+    dateadded date, 
+    floorcount integer, 
+    propertyid bigint, 
+    permanentbuildingid text, 
+    volume double precision, 
+    usage text, 
+    floorarea double precision, 
+    measuredheight double precision, 
+    buildingstate text, 
+    facadematerial text, 
+    address text, 
+    location point, 
+    yearofconstruction integer, 
+    lastgeometrychange date, 
+    floorsaboveground integer)`
+  );
 
 
-        //Poistaa ja luo uudelleen tablen |TODO: Parempi ratkaisu?
-        await pool.query("DROP TABLE IF EXISTS building_info;")
-        await pool.query("CREATE TABLE building_info(id text, dateadded date, floorcount integer, propertyid bigint, buildingid text, permanentbuildingid text, volume double precision, usage text, apartmentcount integer, floorarea double precision, height double precision, measuredheight double precision, supportingmaterial text, buildingstate text, facadematerial text, address text, location point, yearofconstruction integer, lastgeometrychange date, floorsaboveground integer)");
+  console.log("Getting source 1")
+
+  const buildingData1 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=bldg:Building_LOD0&maxFeatures=9999999');
+
+  if(buildingData1.status != 200) return;
+
+  let parsedBuildingData1 = parser.parse(buildingData1.data);
+
+  parsedBuildingData1["wfs:FeatureCollection"]["gml:featureMember"].forEach(building => {
+    const buildingData = building["bldg:Building"];
+
+    const avaivableData = {
+      id: (buildingData["@_gml:id"] as string).replace("Building_", ""),
+      dateadded: buildingData["gen:dateAttribute"]["gen:value"],
+      floorcount: getValueFromAttributes(buildingData["gen:stringAttribute"], "kerrosluku"),
+      propertyid: getValueFromAttributes(buildingData["gen:stringAttribute"], "kiinteistotunnus"),
+      permanentbuildingid: getValueFromAttributes(buildingData["gen:stringAttribute"], "pysyvarakennustunnus"),
+      volume: getValueFromAttributes(buildingData["gen:stringAttribute"], "tilavuus"),
+      usage: mapUsage(buildingData["bldg:class"] + "-" + buildingData["bldg:usage"] + "-" + buildingData["bldg:function"]),
+      floorarea: getValueFromAttributes(buildingData["gen:stringAttribute"], "kokonaisala"),
+      measuredheight: buildingData["bldg:measuredHeight"]["#text"],
+      address: getValueFromAttributes(buildingData["gen:stringAttribute"], "taydellinen_osoite_fi"),
+      location: parsePoint(buildingData["gen:stringAttribute"]),
+      yearofconstruction: buildingData["bldg:yearOfConstruction"],
+      lastgeometrychange: buildingData["gen:dateAttribute"]["gen:value"],
+      floorsaboveground: buildingData[ "bldg:storeysAboveGround"]
+    }
+
+    const validEntries = Object.entries(avaivableData).filter(([key, value]) => value !== undefined && value !== null && value !== "")
+    const columns = validEntries.map(([key]) => key).join(", ")
+    const values = validEntries.map(([key, value]) => value);
+
+    const valueNumbers = validEntries.map((value, index) => `$${index + 1}`).join(", ")
+
+    const update = validEntries.filter(([key]) => key !== "id").map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
+
+    const query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (id) DO UPDATE SET ${update}`;
+
+    pool.query(query, values);
+  });
+
+  console.log("Source 1 update done")
 
 
-        let object = parser.parse(response.data);
 
-        //Vastauksen joka talolle
-        object["wfs:FeatureCollection"]["gml:featureMember"].forEach(building => {
-            const buildingData = building["bldg:Building"];
+  console.log("Getting source 2")
+  const buildingData2 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=kanta:Rakennus&maxFeatures=9999999');
 
-            const point = parsePoint(buildingData["gen:stringAttribute"]);
+  if(buildingData2.status != 200) return;
 
-            const query = "INSERT INTO building_info(id, dateadded,floorcount,propertyid, buildingid, permanentbuildingid, volume, usage, apartmentcount, floorarea, height, measuredheight, supportingmaterial, buildingstate, facadematerial, address, location, yearofconstruction, lastgeometrychange, floorsaboveground) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)";
-            const values = [
-                buildingData["@_gml:id"],
-                buildingData["gen:dateAttribute"]["gen:value"],
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "kerrosluku"),
-                //getValueFromAttributes(buildingData["gen:stringAttribute"], "kiinteistotunnus"),
-                0,
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "vanharakennustunnus"),
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "pysyvarakennustunnus"),
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "tilavuus"),
-                mapUsage(buildingData["bldg:class"] + "-" + buildingData["bldg:usage"] + "-" + buildingData["bldg:function"]),
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "rakennuksen huoneistojen lukumaara"),
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "kerrosala"),
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "korkeus"),
-                buildingData["bldg:measuredHeight"]["#text"],
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "kantava rakennusaine"),
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "rakennuksen tila"),
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "rakennuksen julkisivumateriaali"),
-                getValueFromAttributes(buildingData["gen:stringAttribute"], "osoite"),
-                point,
-                buildingData["bldg:yearOfConstruction"],
-                buildingData["gen:dateAttribute"]["gen:value"],
-                buildingData[ "bldg:storeysAboveGround"]
-            ];
-            
-            pool.query(query, values);
-        });
-    });
-    console.log("Update done")
+  let parsedBuildingData2 = parser.parse(buildingData2.data);
+
+  parsedBuildingData2["wfs:FeatureCollection"]["gml:featureMember"].forEach(building => {
+    const buildingData2 = building["kanta:Rakennus"];
+
+    const avaivableData = {
+      id: (buildingData2["@_gml:id"] as string).replace("Rakennus.", ""),
+      permanentbuildingid: buildingData2["kanta:rakennustunnus"],
+      buildingstate: buildingData2["kanta:tila"],
+      facadematerial: buildingData2["kanta:julkisivumateriaali"]
+    }
+
+    const validEntries = Object.entries(avaivableData).filter(([key, value]) => value !== undefined && value !== null && value !== "")
+    const columns = validEntries.map(([key]) => key).join(", ")
+    const values = validEntries.map(([key, value]) => value);
+
+    const valueNumbers = validEntries.map((value, index) => `$${index + 1}`).join(", ")
+
+    const update = validEntries.filter(([key]) => key !== "id").map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
+
+    let query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (id) DO`;
+
+    if(values.length > 1){
+      query += ` UPDATE SET ${update}`
+    }
+    else{
+      query += " NOTHING"
+    }
+
+    pool.query(query, values);
+  });
+
+
+  console.log("Source 2 update done")
+
+
+  /*
+  console.log("Getting source 3")
+
+  const buildingData3 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=GIS:Rakennukset&maxFeatures=9999999');
+
+  if(buildingData3.status != 200) return;
+
+  let parsedBuildingData3 = parser.parse(buildingData3.data);
+
+  parsedBuildingData3["wfs:FeatureCollection"]["gml:featureMember"].forEach(building => {
+    const buildingData3 = building["GIS:Rakennukset"];
+
+    const avaivableData = {
+      permanentbuildingid: buildingData3["GIS:PysyvaRakennusTunnus"],
+      location: parseRawPoint(parseFloat(buildingData3["GIS:X"]), parseFloat(buildingData3["GIS:Y"]))
+    }
+    if(avaivableData.permanentbuildingid == undefined) return;
+
+    const validEntries = Object.entries(avaivableData).filter(([key, value]) => value !== undefined && value !== null && value !== "")
+    const columns = validEntries.map(([key]) => key).join(", ")
+    const values = validEntries.map(([key, value]) => value);
+
+    const valueNumbers = validEntries.map((value, index) => `$${index + 1}`).join(", ")
+
+    const update = validEntries.map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
+
+    //Ehkä yhdistää rakennustunnuksella, yms muuhun dataan. Sama ID kuin lähteissä 1 ja 2 ei toimi.
+
+  });
+
+  console.log("Source 3 update done")
+
+    
+  */
 }
 
 

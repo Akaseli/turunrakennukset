@@ -32,7 +32,7 @@ const port = 4000;
 app.use(express.json());
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: 'http://localhost:5173',
     optionsSuccessStatus: 200
 };
 
@@ -49,7 +49,7 @@ app.get('/buildings', cors(corsOptions), (req, res) => {
         res.status(200).json(cache.get(req.url));
     }
     else{
-        pool.query('SELECT * FROM building_info', (error, results) => {
+        pool.query('SELECT * FROM building_info WHERE location IS NOT NULL', (error, results) => {
             if(error){
                 throw error;
             }

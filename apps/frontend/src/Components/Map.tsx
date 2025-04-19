@@ -18,12 +18,13 @@ export const Map: React.FC<Props> = ({buildings}) => {
                         <h3>{building.address ?? "Ei tietoa"}</h3>
                         <p>Rakennettu: {building.yearofconstruction ?? "Ei tietoa"}</p>
                         <p>Kiinteistötunnus: {building.propertyid ?? "Ei tietoa" }</p>
-                        <p>Rakennustunnus: {building.buildingid ?? "Ei tietoa"}</p>
-                        <p>Pysyvä rakennustunnus: {building.permanentbuildingid ?? "Ei tietoa"}</p>
+                        <p>Rakennustunnus: {building.permanentbuildingid ?? "Ei tietoa"}</p>
                         <p>Käyttötarkoitus: {building.usage ?? "Ei tietoa"}</p>
-                        <p>Kerrosala: {building.floorarea ?? "Ei tietoa"}</p>
+                        <p>Ala: {building.floorarea ?? "Ei tietoa"}</p>
                         <p>Kerrosluku: {building.floorcount ?? "Ei tietoa"}</p>
-                        <p>Huoneistoja: {building.apartmentcount ?? "Ei tietoa"}</p>
+                        <p>Julkisivu: {building.facadematerial ?? "Ei tietoa"}</p>
+                        <p>Korkeus: {building.measuredheight ?? "Ei tietoa"}</p>
+                        <p>Tila: {building.buildingstate ?? "Ei tietoa"} </p>
                     </div>
                 </Popup>
             </Marker>

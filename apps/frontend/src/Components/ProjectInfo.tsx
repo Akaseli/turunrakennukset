@@ -1,6 +1,5 @@
 import { Container, Grid, Link, Typography } from '@mui/material';
-import React from 'react'
-import githubLogo from "../GitHub-Mark-120px-plus.png"
+import React from 'react';
 
 interface Props {
     
@@ -34,7 +33,7 @@ export const ProjectInfo: React.FC<Props> = () => {
 
                 <Grid container justifyContent={"center"}>
                     <Link variant='button' href='https://github.com/Akaseli/turunrakennukset' target={"_blank"}>
-                        <img height={40} src={githubLogo}></img>
+                        <img height={40} src={"/github_logo.png"}></img>
                     </Link>
                 </Grid>
             </Grid>

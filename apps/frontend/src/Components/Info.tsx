@@ -12,17 +12,22 @@ export const Info: React.FC<Props> = ({amountOfHouses, amountOfHousesWithMissing
      return(
          <Container sx={{
              padding: 2,
+             maxWidth: "450px"
          }}>
             <Alert 
                 severity='info'
                 sx={{
-                    marginBottom: 1
+                    marginBottom: 1,
                 }}
             >
-                {"Talot päivitetty viimeksi:" + housesLastUpdated.toLocaleString()}
+                <Typography sx={{
+                  fontSize: 'small',
+                  justifySelf: 'baseline'
+                }}>{"Talot päivitetty viimeksi: " + housesLastUpdated.toLocaleString()}</Typography>
             </Alert>
-            <Typography>{amountOfHouses} rakennuksesta on tietoa.</Typography>
-            <Typography>{amountOfHousesWithMissingData} rakennusta ei voida näyttää kartalla.</Typography>
+
+            <Typography>{amountOfHouses} rakennuksesta löytyy sijaintitiedot.</Typography>
+            <Typography>{amountOfHousesWithMissingData} rakennusta piillotettu kartalta vähäisen tiedon vuoksi.</Typography>
             <Typography>{housesVisible} rakennusta löydettiin valinnoilla.</Typography>
          </Container>
      );

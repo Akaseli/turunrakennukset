@@ -14,8 +14,6 @@ export const Filter: React.FC<Props> = ({ value, usageOptions, onSubmit }) => {
 
     const [textErrors, setErrors] = useState({ minText: false, maxText: false });
 
-
-
     const options = usageOptions.map((option, index) => {
         return (
             <MenuItem key={index} value={option}>{option}</MenuItem>
@@ -23,7 +21,6 @@ export const Filter: React.FC<Props> = ({ value, usageOptions, onSubmit }) => {
     });
 
     useEffect(() => {
-        //MIN TEXT
         if (isNaN(selection.min)) {
             setErrors(prev => ({
                 ...prev,
@@ -37,7 +34,6 @@ export const Filter: React.FC<Props> = ({ value, usageOptions, onSubmit }) => {
             }));
         }
 
-        //MAX TEXT
         if (isNaN(selection.max)) {
             setErrors(prev => ({
                 ...prev,
@@ -52,7 +48,6 @@ export const Filter: React.FC<Props> = ({ value, usageOptions, onSubmit }) => {
         }
     }, [selection])
 
-    //TODO KORJAA INPUTIT
     return (
         <form
             onSubmit={(e) => {
