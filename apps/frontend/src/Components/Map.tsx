@@ -24,7 +24,6 @@ export const Map: React.FC<Props> = ({buildings}) => {
                         <p>Kerrosluku: {building.floorcount ?? "Ei tietoa"}</p>
                         <p>Julkisivu: {building.facadematerial ?? "Ei tietoa"}</p>
                         <p>Korkeus: {building.measuredheight ?? "Ei tietoa"}</p>
-                        <p>Tila: {building.buildingstate ?? "Ei tietoa"} </p>
                     </div>
                 </Popup>
             </Marker>

@@ -173,11 +173,11 @@ export async function update(returnData){
   console.log("Updating database...")
   //Luodaan tarvittaessa
   await pool.query(`CREATE TABLE IF NOT EXISTS building_info(
-    id text PRIMARY KEY, 
+    permanentbuildingid text PRIMARY KEY, 
+    id text, 
     dateadded date, 
     floorcount integer, 
     propertyid bigint, 
-    permanentbuildingid text, 
     volume double precision, 
     usage text, 
     floorarea double precision, 
@@ -220,15 +220,17 @@ export async function update(returnData){
       floorsaboveground: buildingData[ "bldg:storeysAboveGround"]
     }
 
+    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") return;
+
     const validEntries = Object.entries(avaivableData).filter(([key, value]) => value !== undefined && value !== null && value !== "")
     const columns = validEntries.map(([key]) => key).join(", ")
     const values = validEntries.map(([key, value]) => value);
 
     const valueNumbers = validEntries.map((value, index) => `$${index + 1}`).join(", ")
 
-    const update = validEntries.filter(([key]) => key !== "id").map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
+    const update = validEntries.filter(([key]) => key !== "permanentbuildingid").map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
 
-    const query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (id) DO UPDATE SET ${update}`;
+    const query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (permanentbuildingid) DO UPDATE SET ${update}`;
 
     pool.query(query, values);
   });
@@ -251,7 +253,16 @@ export async function update(returnData){
       id: (buildingData2["@_gml:id"] as string).replace("Rakennus.", ""),
       permanentbuildingid: buildingData2["kanta:rakennustunnus"],
       buildingstate: buildingData2["kanta:tila"],
-      facadematerial: buildingData2["kanta:julkisivumateriaali"]
+      facadematerial: buildingData2["kanta:julkisivumateriaali"],
+      yearofconstruction: buildingData2["kanta:kottovuosi"]
+    }
+
+    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") return;
+
+    if(avaivableData.yearofconstruction){
+      if(typeof(avaivableData.yearofconstruction) == "string"){
+        avaivableData.yearofconstruction = (avaivableData.yearofconstruction as string).split("-")[0]
+      }
     }
 
     const validEntries = Object.entries(avaivableData).filter(([key, value]) => value !== undefined && value !== null && value !== "")
@@ -260,9 +271,9 @@ export async function update(returnData){
 
     const valueNumbers = validEntries.map((value, index) => `$${index + 1}`).join(", ")
 
-    const update = validEntries.filter(([key]) => key !== "id").map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
+    const update = validEntries.filter(([key]) => key !== "permanentbuildingid").map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
 
-    let query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (id) DO`;
+    let query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (permanentbuildingid) DO`;
 
     if(values.length > 1){
       query += ` UPDATE SET ${update}`
@@ -270,15 +281,19 @@ export async function update(returnData){
     else{
       query += " NOTHING"
     }
+    try{
+      pool.query(query, values);
+    }
+    catch (err){
+      console.log(avaivableData)
+      throw(err)
+    }
 
-    pool.query(query, values);
   });
 
 
   console.log("Source 2 update done")
 
-
-  /*
   console.log("Getting source 3")
 
   const buildingData3 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=GIS:Rakennukset&maxFeatures=9999999');
@@ -292,26 +307,36 @@ export async function update(returnData){
 
     const avaivableData = {
       permanentbuildingid: buildingData3["GIS:PysyvaRakennusTunnus"],
-      location: parseRawPoint(parseFloat(buildingData3["GIS:X"]), parseFloat(buildingData3["GIS:Y"]))
+      location: parseRawPoint(parseFloat(buildingData3["GIS:X"]), parseFloat(buildingData3["GIS:Y"])),
+      yearofconstruction: buildingData3["GIS:Valmistunut"],
+      floorcount: buildingData3["GIS:Kerrosluku"],
+      volume: buildingData3["GIS:Tilavuus"],
+      floorarea: buildingData3["GIS:Kokonaisala"],
+      address: buildingData3["GIS:Osoitenimi_fi"] + " " + buildingData3["GIS:Osoitenumero"] + ", " + buildingData3["GIS:Postinumero"] + " " + buildingData3["GIS:Postitoimipaikka"],
+      floorsaboveground: buildingData3["GIS:Kerrosluku"]
     }
-    if(avaivableData.permanentbuildingid == undefined) return;
+    //Required to link to other sources 
+    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") return;
+
+    if(avaivableData.yearofconstruction){
+      if(typeof(avaivableData.yearofconstruction) == "string"){
+        avaivableData.yearofconstruction = (avaivableData.yearofconstruction as string).split(".")[2]
+      }
+    }
 
     const validEntries = Object.entries(avaivableData).filter(([key, value]) => value !== undefined && value !== null && value !== "")
     const columns = validEntries.map(([key]) => key).join(", ")
     const values = validEntries.map(([key, value]) => value);
 
-    const valueNumbers = validEntries.map((value, index) => `$${index + 1}`).join(", ")
+    const update = validEntries.map(([key], index) => `${key} = $${index +1}`).join(", ")
 
-    const update = validEntries.map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
+    let query = `UPDATE building_info SET ${update} WHERE permanentbuildingid = $${validEntries.length + 1}`;
+    values.push(avaivableData.permanentbuildingid)
 
-    //Ehkä yhdistää rakennustunnuksella, yms muuhun dataan. Sama ID kuin lähteissä 1 ja 2 ei toimi.
-
+    pool.query(query, values);
   });
 
   console.log("Source 3 update done")
-
-    
-  */
 }
 
 

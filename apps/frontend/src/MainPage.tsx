@@ -54,7 +54,7 @@ export const MainPage = () => {
 
     //Laskee talot joita ei välttämättä voida näyttää
     useEffect(() => {
-        setBuildingsNoInfo(buildings.filter(building => building.yearofconstruction == null || building.yearofconstruction == 0).length);
+        setBuildingsNoInfo(buildings.filter(building => building.yearofconstruction == null).length);
     }, [buildings]);
 
     return (

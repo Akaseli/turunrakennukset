@@ -27,7 +27,7 @@ export const Info: React.FC<Props> = ({amountOfHouses, amountOfHousesWithMissing
             </Alert>
 
             <Typography>{amountOfHouses} rakennuksesta löytyy sijaintitiedot.</Typography>
-            <Typography>{amountOfHousesWithMissingData} rakennusta piillotettu kartalta vähäisen tiedon vuoksi.</Typography>
+            <Typography>{amountOfHousesWithMissingData} rakennuksesta ei ole tiedossa rakennusvuotta.</Typography>
             <Typography>{housesVisible} rakennusta löydettiin valinnoilla.</Typography>
          </Container>
      );

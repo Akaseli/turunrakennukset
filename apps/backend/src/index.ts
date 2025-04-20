@@ -24,7 +24,7 @@ const cacheTime = 60 * 60 * 1
 const cache = new NodeCache({
     stdTTL: cacheTime,
     useClones: false,
-    checkperiod: 3600
+    checkperiod: 1
 });
 
 const port = 4000;
