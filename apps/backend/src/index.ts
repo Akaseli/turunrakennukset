@@ -3,11 +3,11 @@ import pg from 'pg';
 import cors from 'cors';
 import NodeCache from 'node-cache';
 import { update } from './databaseUpdate.js';
+import compression from 'compression';
 const app = express();
 
 const { Pool } = pg
 
-//24 tuntia
 const updateData = setInterval(update, 7 * 24 * 60 * 60 * 1000);
 
 function StartUpdate(){
@@ -18,18 +18,19 @@ function StartUpdate(){
 //Käynnistäessä hakee tuoreimman datan
 let dataUpdated = 0;
 
-//1 tuntia
-const cacheTime = 60 * 60 * 1
+//3 tuntia
+const cacheTime = 3 * 60 * 60
 
 const cache = new NodeCache({
     stdTTL: cacheTime,
     useClones: false,
-    checkperiod: 1
+    checkperiod: 3600
 });
 
 const port = 4000;
 
 app.use(express.json());
+app.use(compression())
 
 const corsOptions = {
     origin: 'http://localhost:5173',
@@ -45,8 +46,8 @@ const pool = new Pool({
 })
 
 app.get('/buildings', cors(corsOptions), (req, res) => {
-    if(cache.get(req.url)){
-        res.status(200).json(cache.get(req.url));
+    if(cache.get("buildings")){
+        res.status(200).json(cache.get("buildings"));
     }
     else{
         pool.query('SELECT * FROM building_info WHERE location IS NOT NULL', (error, results) => {
@@ -61,8 +62,8 @@ app.get('/buildings', cors(corsOptions), (req, res) => {
 });
 
 app.get('/info', cors(corsOptions), (req, res) => {
-    if(cache.get(req.url)){
-        res.status(200).json(cache.get(req.url));
+    if(cache.get("info")){
+        res.status(200).json(cache.get("info"));
     }
     else{
         pool.query('SELECT DISTINCT usage FROM building_info', (error, results) => {
