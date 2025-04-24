@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Map } from './components/Map';
 import axios from 'axios';
 import { Building, Selection } from './interfaces';
@@ -22,6 +22,8 @@ export const MainPage = () => {
         setSelection(newSelection);
     }
 
+    const workerRef = useRef<Worker|null>(null)
+
     useEffect(() => {
         //Käyttötarkoitukset
         axios.get("/api/info")
@@ -41,15 +43,25 @@ export const MainPage = () => {
             });
     }, [])
 
-    //Filtteröi talot
     useEffect(() => {
-        if(selection.usage != "Kaikki"){
-            setSelectedBuildings(buildings.filter(building =>  building.yearofconstruction != null && building.yearofconstruction != 0 && selection.min <= building.yearofconstruction && building.yearofconstruction <= selection.max && building.usage == selection.usage));
-        }
-        else{
-            setSelectedBuildings(buildings.filter(building => building.yearofconstruction != null && building.yearofconstruction != 0 && selection.min <= building.yearofconstruction && building.yearofconstruction <= selection.max));
-        }
-    }, [selection]);
+      if(!workerRef.current){
+        workerRef.current = new Worker(new URL("./filterWorker.ts", import.meta.url), {type: "module"})
+      }
+
+      const worker = workerRef.current;
+
+      worker.postMessage({buildings, selection})
+
+      worker.onmessage = (e) => {
+        console.log("Filter done")
+        setSelectedBuildings(e.data)
+      }
+
+      return () => {
+        worker.terminate();
+        workerRef.current = null
+      }
+    }, [buildings, selection]);
 
 
     //Laskee talot joita ei välttämättä voida näyttää

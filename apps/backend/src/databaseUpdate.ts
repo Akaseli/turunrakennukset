@@ -281,14 +281,8 @@ export async function update(returnData){
     else{
       query += " NOTHING"
     }
-    try{
-      pool.query(query, values);
-    }
-    catch (err){
-      console.log(avaivableData)
-      throw(err)
-    }
 
+    pool.query(query, values);
   });
 
 
@@ -328,12 +322,20 @@ export async function update(returnData){
     const columns = validEntries.map(([key]) => key).join(", ")
     const values = validEntries.map(([key, value]) => value);
 
-    const update = validEntries.map(([key], index) => `${key} = $${index +1}`).join(", ")
+    const valueNumbers = validEntries.map((value, index) => `$${index + 1}`).join(", ")
 
-    let query = `UPDATE building_info SET ${update} WHERE permanentbuildingid = $${validEntries.length + 1}`;
-    values.push(avaivableData.permanentbuildingid)
+    const update = validEntries.filter(([key]) => key !== "permanentbuildingid").map(([key]) => `${key} = EXCLUDED.${key}`).join(", ")
 
-    pool.query(query, values);
+    let query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (permanentbuildingid) DO`;
+
+    if(values.length > 1){
+      query += ` UPDATE SET ${update}`
+    }
+    else{
+      query += " NOTHING"
+    }
+
+    pool.query(query, values)
   });
 
   console.log("Source 3 update done")
