@@ -61,40 +61,38 @@ function parseRawPoint(x: number, y: number){
 }
 
 function mapUsage(usage){
+  //Class, usage, function
   switch(usage){
     
     case "1000-1000-1000":
       return "Muutaman asunnon talo"
+
     case "1000-1000-1010":
       return "Rivi-/Kerrostalo"
-    case "1030-1150-1020":
+    
+      case "1030-1150-1020":
       return "Toimistorakennus"
+
     case "1030-1150-1050":
       return "Liiketila"
     
-    //Selkeä
     case "1040-1240-1240":
       return " Ravintolat, ruokalat ja baarit"
 
     case "1050-1100-1100":
-      //Saunat, erilliset vapaa-ajan asunnot yms yhdistetty
-      return "Erilliset vapaa-ajan asunnot"
+      return "Vapaa-ajan asunnot"
 
     case "1060-2550-2550":
-      //Yhdistetty taas aika monta samaan
       return "Urheilu";
-    
-    //Selkeä
+
     case "1070-2120-2120":
-      return "Seurain-, nuoriso- yms. talot"
+      return "Kulttuuri"
 
     case "1080-2210-2210":
-      //Yhdistelty seurakuntien yms rakennuksia
-      return "Usk. yhteisojen rakennukset"
+      return "Uskonnolliset rakennukset"
 
     case "1090-1070-1070":
-      //Sisältää kanalat, eläinsuojat, maa-/metsä-/kalatalousrak, viljakuivaamot yms
-      return "Erilaiset maa- ja elintarviketalousrakennukset"
+      return "Maa- ja metsätalouden rakennukset"
     
     case "1090-1940-1940":
       return "Kasvihuoneet"
@@ -103,7 +101,7 @@ function mapUsage(usage){
       return "Koulu"
 
     case "1120-1150-1050":
-      return "Asuntolat, Muut majoitusrakennukset"
+      return "Majoitusrakennukset"
 
     case "1120-2300-2300":
       return "Terveydenhoito"
@@ -125,13 +123,12 @@ function mapUsage(usage){
       return "Varastorakennus"
 
     case "1150-1360-1360":
-      return "Huolto-/Talousrakennus"
+      return "Ulkovarasto"
     
     case "1160-1700-1700":
       return "Voimalaitosrakennukset"
-    
+      
     case "161-161-161":
-      //Ehkä ennemmin yleisesti vain joukkoliikenne
       return "Rautatie- ja linja-autoasemat"
     
     case "163-163-163":

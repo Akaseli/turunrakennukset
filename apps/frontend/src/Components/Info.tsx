@@ -26,6 +26,19 @@ export const Info: React.FC<Props> = ({amountOfHouses, amountOfHousesWithMissing
                 }}>{"Talot päivitetty viimeksi: " + housesLastUpdated.toLocaleString()}</Typography>
             </Alert>
 
+            <Alert
+              severity='warning'
+              sx={{
+                marginBottom: 1,
+              }}
+            >
+               <Typography sx={{
+                  fontSize: 'small',
+                  justifySelf: 'baseline'
+                }}>Sivuston tietoja on yhdistetty monesta lähteestä, joten tieto saattaa olla paikoin virheellistä tai vanhentunutta.</Typography>
+
+            </Alert>
+
             <Typography>{amountOfHouses} rakennuksesta löytyy sijaintitiedot.</Typography>
             <Typography>{amountOfHousesWithMissingData} rakennuksesta ei ole tiedossa rakennusvuotta.</Typography>
             <Typography>{housesVisible} rakennusta löydettiin valinnoilla.</Typography>
