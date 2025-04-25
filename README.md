@@ -1,4 +1,3 @@
 ## Turun rakennukset
-Rakennuksien tiedot on hankittu [turun karttapalveluiden rajapinnoista](https://www.turku.fi/turku-tieto/kartat-ja-paikkatieto/karttapalveluiden-rajapinnat). 
-Tämän nettisivun käyttämämiä tietoja on muokattu.
-[Turun avoimen datan käyttölupa](https://www.turku.fi/avoindata/lupa)
+Rakennuksien tiedot on hankittu [Turun seudun karttapalvelun rajapinnoista](https://www.turku.fi/tietoa-turusta/kartat-ja-paikkatieto). 
+Sivuston näyttämää tietoa on yhdistelty monesta eri rajapinnasta, joten tieto saattaa olle osittain suuntaa-antavaa, virheellistä tai vanhentunutta.  

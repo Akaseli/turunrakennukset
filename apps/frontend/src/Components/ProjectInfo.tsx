@@ -15,17 +15,14 @@ export const ProjectInfo: React.FC<Props> = () => {
             <Grid item sx={{
                 margin: 2
             }}>
-                <Typography align='center'>
-                    Rakennusten lähde: 
-                    <Link color={"secondary"} href='https://www.turku.fi/turku-tieto/kartat-ja-paikkatieto/karttapalveluiden-rajapinnat' target={"_blank"}>Turun karttapalveluiden rajapinnat</Link>
-                </Typography>
-                <Typography align='center'>Tämän nettisivun käyttämää aineistoa on muokattu.</Typography>
+                <Typography align='center'>Rakennustiedot © Turun kaupunki, käyttölupa CC BY 4.0</Typography>
 
                 <Typography align='center'>
-                    <Link color={"secondary"} href='https://www.turku.fi/avoindata/lupa' target={"_blank"}>Turun avoimen datan käyttölupa</Link>
-                </Typography>
+                    <Link color={"secondary"} href='https://www.turku.fi/tietoa-turusta/kartat-ja-paikkatieto' target={"_blank"}> Turun seudun karttapalvelun rajapinnat </Link> 
+                </Typography>        
 
-                
+                <Typography align='center'>Tämän nettisivun käyttämää aineistoa on muokattu.</Typography>     
+   
             </Grid>
 
             <Grid item justifyContent={"center"}>

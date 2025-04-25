@@ -4,10 +4,12 @@ import cors from 'cors';
 import NodeCache from 'node-cache';
 import { update } from './databaseUpdate.js';
 import compression from 'compression';
+import path from 'path';
 const app = express();
 
 const { Pool } = pg
 
+//7 päivää
 const updateData = setInterval(update, 7 * 24 * 60 * 60 * 1000);
 
 function StartUpdate(){
@@ -18,8 +20,8 @@ function StartUpdate(){
 //Käynnistäessä hakee tuoreimman datan
 let dataUpdated = 0;
 
-//3 tuntia
-const cacheTime = 3 * 60 * 60
+//12 tuntia
+const cacheTime = 12 * 60 * 60
 
 const cache = new NodeCache({
     stdTTL: cacheTime,
@@ -32,10 +34,18 @@ const port = 4000;
 app.use(express.json());
 app.use(compression())
 
-const corsOptions = {
-    origin: 'http://localhost:5173',
-    optionsSuccessStatus: 200
-};
+if(process.env.PRODUCTION){
+  console.log("Serving frontend")
+  app.use(express.static(path.join(__dirname, "../frontend")));
+}
+
+
+if(process.env.PRODUCTION){
+  app.use(cors({origin: "https://turunrakennukset.akaseli.dev"}))
+}
+else{
+  app.use(cors())
+}
 
 const pool = new Pool({
   user: process.env.DBUSER,
@@ -45,7 +55,7 @@ const pool = new Pool({
   port: process.env.DBPORT
 })
 
-app.get('/buildings', cors(corsOptions), (req, res) => {
+app.get('/buildings', (req, res) => {
     if(cache.get("buildings")){
         res.status(200).json(cache.get("buildings"));
     }
@@ -55,13 +65,13 @@ app.get('/buildings', cors(corsOptions), (req, res) => {
                 throw error;
             }
 
-            cache.set(req.url, results.rows);
+            cache.set("buildings", results.rows);
             res.status(200).json(results.rows);
         });
     }
 });
 
-app.get('/info', cors(corsOptions), (req, res) => {
+app.get('/info', (req, res) => {
     if(cache.get("info")){
         res.status(200).json(cache.get("info"));
     }
@@ -74,7 +84,7 @@ app.get('/info', cors(corsOptions), (req, res) => {
             const response = results.rows.map((result) => {
                 return result["usage"];
             });
-            cache.set(req.url, [response, dataUpdated]);
+            cache.set("info", [response, dataUpdated]);
             res.status(200).json([response, dataUpdated]);
         });
     }

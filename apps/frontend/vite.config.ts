@@ -5,13 +5,15 @@ export default defineConfig({
   plugins: [
     react()
   ],
+  build: {
+    outDir: '../../build/frontend'
+  },
   server: {
     proxy: {
       "/api": {
         target: "http://localhost:4000",
         rewrite: (path) => path.replace(/^\/api/, ''),
       }
-     
     }
   }
 });
