@@ -5,7 +5,6 @@ WORKDIR /app
 COPY package.json ./
 COPY package-lock.json ./
 COPY turbo.json ./
-COPY packages ./packages
 COPY apps ./apps
 
 RUN npm install

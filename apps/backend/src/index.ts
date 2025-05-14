@@ -55,7 +55,7 @@ const pool = new Pool({
   port: process.env.DBPORT
 })
 
-app.get('/buildings', (req, res) => {
+app.get('/api/buildings', (req, res) => {
     if(cache.get("buildings")){
         res.status(200).json(cache.get("buildings"));
     }
@@ -71,7 +71,7 @@ app.get('/buildings', (req, res) => {
     }
 });
 
-app.get('/info', (req, res) => {
+app.get('/api/info', (req, res) => {
     if(cache.get("info")){
         res.status(200).json(cache.get("info"));
     }

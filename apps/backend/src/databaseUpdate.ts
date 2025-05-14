@@ -14,6 +14,8 @@ const pool = new Pool({
     port: process.env.DBPORT
 })
 
+console.log(process.env.DBNAME)
+
 const options = {
     ignoreAttributes : false,
     attributeNamePrefix : "@_"
