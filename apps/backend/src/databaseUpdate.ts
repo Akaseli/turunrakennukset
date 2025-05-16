@@ -14,8 +14,6 @@ const pool = new Pool({
     port: process.env.DBPORT
 })
 
-console.log(process.env.DBNAME)
-
 const options = {
     ignoreAttributes : false,
     attributeNamePrefix : "@_"
@@ -190,9 +188,6 @@ export async function update(returnData){
     floorsaboveground integer)`
   );
 
-
-  console.log("Getting source 1")
-
   const buildingData1 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=bldg:Building_LOD0&maxFeatures=9999999');
 
   if(buildingData1.status != 200) return;
@@ -234,11 +229,6 @@ export async function update(returnData){
     pool.query(query, values);
   });
 
-  console.log("Source 1 update done")
-
-
-
-  console.log("Getting source 2")
   const buildingData2 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=kanta:Rakennus&maxFeatures=9999999');
 
   if(buildingData2.status != 200) return;
@@ -283,11 +273,6 @@ export async function update(returnData){
 
     pool.query(query, values);
   });
-
-
-  console.log("Source 2 update done")
-
-  console.log("Getting source 3")
 
   const buildingData3 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=GIS:Rakennukset&maxFeatures=9999999');
 
@@ -337,7 +322,7 @@ export async function update(returnData){
     pool.query(query, values)
   });
 
-  console.log("Source 3 update done")
+  console.log("Update done.")
 }
 
 
