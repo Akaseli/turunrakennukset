@@ -52,8 +52,6 @@ function parsePoint(list){
 }
 
 function parseRawPoint(x: number, y: number){
-  proj4.defs("EPSG:3877","+proj=tmerc +lat_0=0 +lon_0=23 +k=1 +x_0=23500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
-
   let latlngParts = proj4("EPSG:3877").inverse([y, x]);
       
   return (latlngParts[1] + "," + latlngParts[0]);
@@ -193,7 +191,7 @@ export async function update(returnData){
 
   let parsedBuildingData1 = parser.parse(buildingData1.data);
 
-  parsedBuildingData1["wfs:FeatureCollection"]["gml:featureMember"].forEach(async building => {
+  for(const building of parsedBuildingData1["wfs:FeatureCollection"]["gml:featureMember"]){
     const buildingData = building["bldg:Building"];
 
     const avaivableData = {
@@ -213,7 +211,7 @@ export async function update(returnData){
       floorsaboveground: buildingData[ "bldg:storeysAboveGround"]
     }
 
-    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") return;
+    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") continue;
 
     const validEntries = Object.entries(avaivableData).filter(([key, value]) => value !== undefined && value !== null && value !== "")
     const columns = validEntries.map(([key]) => key).join(", ")
@@ -226,11 +224,7 @@ export async function update(returnData){
     const query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (permanentbuildingid) DO UPDATE SET ${update}`;
 
     await pool.query(query, values);
-    
-    if(global.gc){
-      global.gc();
-    }
-  });
+  };
 
   buildingData1 = null;
   parsedBuildingData1 = null;
@@ -247,7 +241,7 @@ export async function update(returnData){
 
   let parsedBuildingData2 = parser.parse(buildingData2.data);
 
-  parsedBuildingData2["wfs:FeatureCollection"]["gml:featureMember"].forEach(async building => {
+  for(const building of parsedBuildingData2["wfs:FeatureCollection"]["gml:featureMember"]) {
     const buildingData2 = building["kanta:Rakennus"];
 
     const avaivableData = {
@@ -258,7 +252,7 @@ export async function update(returnData){
       yearofconstruction: buildingData2["kanta:kottovuosi"]
     }
 
-    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") return;
+    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") continue;
 
     if(avaivableData.yearofconstruction){
       if(typeof(avaivableData.yearofconstruction) == "string"){
@@ -284,11 +278,7 @@ export async function update(returnData){
     }
 
     await pool.query(query, values);
-
-    if(global.gc){
-      global.gc();
-    }
-  });
+  };
 
   buildingData2 = null;
   parsedBuildingData2 = null;
@@ -304,7 +294,7 @@ export async function update(returnData){
 
   let parsedBuildingData3 = parser.parse(buildingData3.data);
 
-  parsedBuildingData3["wfs:FeatureCollection"]["gml:featureMember"].forEach(async building => {
+  for(const building of parsedBuildingData3["wfs:FeatureCollection"]["gml:featureMember"]) {
     const buildingData3 = building["GIS:Rakennukset"];
 
     const avaivableData = {
@@ -318,7 +308,7 @@ export async function update(returnData){
       floorsaboveground: buildingData3["GIS:Kerrosluku"]
     }
     //Required to link to other sources 
-    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") return;
+    if(avaivableData.permanentbuildingid == undefined || avaivableData.permanentbuildingid == null ||  avaivableData.permanentbuildingid == "") continue;
 
     if(avaivableData.yearofconstruction){
       if(typeof(avaivableData.yearofconstruction) == "string"){
@@ -344,11 +334,7 @@ export async function update(returnData){
     }
 
     await pool.query(query, values)
-    
-    if(global.gc){
-      global.gc();
-    }
-  });
+  };
 
   buildingData3 = null;
   parsedBuildingData3 = null;
