@@ -187,13 +187,13 @@ export async function update(returnData){
     floorsaboveground integer)`
   );
 
-  let buildingData1 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=bldg:Building_LOD0&maxFeatures=9999999');
+  let buildingData1 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=bldg:Building_LOD0&maxFeatures=99999');
 
   if(buildingData1.status != 200) return;
 
   let parsedBuildingData1 = parser.parse(buildingData1.data);
 
-  parsedBuildingData1["wfs:FeatureCollection"]["gml:featureMember"].forEach(building => {
+  parsedBuildingData1["wfs:FeatureCollection"]["gml:featureMember"].forEach(async building => {
     const buildingData = building["bldg:Building"];
 
     const avaivableData = {
@@ -225,22 +225,29 @@ export async function update(returnData){
 
     const query = `INSERT INTO building_info(${columns}) VALUES(${valueNumbers}) ON CONFLICT (permanentbuildingid) DO UPDATE SET ${update}`;
 
-    pool.query(query, values);
+    await pool.query(query, values);
+    
+    if(global.gc){
+      global.gc();
+    }
   });
 
   buildingData1 = null;
   parsedBuildingData1 = null;
 
-  global.gc();
+  
+  if(global.gc){
+    global.gc();
+  }
 
 
-  let buildingData2 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=kanta:Rakennus&maxFeatures=9999999');
+  let buildingData2 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=kanta:Rakennus&maxFeatures=99999');
 
   if(buildingData2.status != 200) return;
 
   let parsedBuildingData2 = parser.parse(buildingData2.data);
 
-  parsedBuildingData2["wfs:FeatureCollection"]["gml:featureMember"].forEach(building => {
+  parsedBuildingData2["wfs:FeatureCollection"]["gml:featureMember"].forEach(async building => {
     const buildingData2 = building["kanta:Rakennus"];
 
     const avaivableData = {
@@ -276,21 +283,28 @@ export async function update(returnData){
       query += " NOTHING"
     }
 
-    pool.query(query, values);
+    await pool.query(query, values);
+
+    if(global.gc){
+      global.gc();
+    }
   });
 
   buildingData2 = null;
   parsedBuildingData2 = null;
 
-  global.gc();
+  
+  if(global.gc){
+    global.gc();
+  }
 
-  let buildingData3 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=GIS:Rakennukset&maxFeatures=9999999');
+  let buildingData3 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=GIS:Rakennukset&maxFeatures=99999');
 
   if(buildingData3.status != 200) return;
 
   let parsedBuildingData3 = parser.parse(buildingData3.data);
 
-  parsedBuildingData3["wfs:FeatureCollection"]["gml:featureMember"].forEach(building => {
+  parsedBuildingData3["wfs:FeatureCollection"]["gml:featureMember"].forEach(async building => {
     const buildingData3 = building["GIS:Rakennukset"];
 
     const avaivableData = {
@@ -329,13 +343,20 @@ export async function update(returnData){
       query += " NOTHING"
     }
 
-    pool.query(query, values)
+    await pool.query(query, values)
+    
+    if(global.gc){
+      global.gc();
+    }
   });
 
   buildingData3 = null;
   parsedBuildingData3 = null;
 
-  global.gc();
+  
+  if(global.gc){
+    global.gc();
+  }
 
   console.log("Update done.")
 }
