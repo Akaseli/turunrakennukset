@@ -10,4 +10,4 @@ COPY apps ./apps
 RUN npm install
 RUN npx turbo run build
 
-CMD ["node", "build/backend/index.js"]
+CMD ["node", "--expose-gc", "build/backend/index.js"]

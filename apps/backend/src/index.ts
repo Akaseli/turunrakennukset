@@ -2,9 +2,9 @@ import express from 'express';
 import pg from 'pg';
 import cors from 'cors';
 import NodeCache from 'node-cache';
-import { update } from './databaseUpdate.js';
 import compression from 'compression';
 import path from 'path';
+import { update } from './databaseUpdate';
 const app = express();
 
 const { Pool } = pg

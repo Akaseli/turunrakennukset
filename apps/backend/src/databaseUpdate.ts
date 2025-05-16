@@ -20,6 +20,7 @@ const options = {
 };
 
 let parser = new XMLParser(options);
+proj4.defs("EPSG:3877","+proj=tmerc +lat_0=0 +lon_0=23 +k=1 +x_0=23500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
 
 function getValueFromAttributes(list, valueName){
     //console.log(list)
@@ -31,8 +32,6 @@ function getValueFromAttributes(list, valueName){
 }
 
 function parsePoint(list){
-    proj4.defs("EPSG:3877","+proj=tmerc +lat_0=0 +lon_0=23 +k=1 +x_0=23500000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
-    
     const x = getValueFromAttributes(list, "x");
     const y = getValueFromAttributes(list, "y");
 
@@ -188,7 +187,7 @@ export async function update(returnData){
     floorsaboveground integer)`
   );
 
-  const buildingData1 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=bldg:Building_LOD0&maxFeatures=9999999');
+  let buildingData1 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=bldg:Building_LOD0&maxFeatures=9999999');
 
   if(buildingData1.status != 200) return;
 
@@ -229,7 +228,13 @@ export async function update(returnData){
     pool.query(query, values);
   });
 
-  const buildingData2 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=kanta:Rakennus&maxFeatures=9999999');
+  buildingData1 = null;
+  parsedBuildingData1 = null;
+
+  global.gc();
+
+
+  let buildingData2 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=kanta:Rakennus&maxFeatures=9999999');
 
   if(buildingData2.status != 200) return;
 
@@ -274,7 +279,12 @@ export async function update(returnData){
     pool.query(query, values);
   });
 
-  const buildingData3 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=GIS:Rakennukset&maxFeatures=9999999');
+  buildingData2 = null;
+  parsedBuildingData2 = null;
+
+  global.gc();
+
+  let buildingData3 = await axios.get('https://opaskartta.turku.fi/TeklaOGCWeb/WFS.ashx?service=wfs&version=1.1.0&request=GetFeature&TypeName=GIS:Rakennukset&maxFeatures=9999999');
 
   if(buildingData3.status != 200) return;
 
@@ -321,6 +331,11 @@ export async function update(returnData){
 
     pool.query(query, values)
   });
+
+  buildingData3 = null;
+  parsedBuildingData3 = null;
+
+  global.gc();
 
   console.log("Update done.")
 }
