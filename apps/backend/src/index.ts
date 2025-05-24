@@ -4,16 +4,16 @@ import cors from 'cors';
 import NodeCache from 'node-cache';
 import compression from 'compression';
 import path from 'path';
-import { update } from './databaseUpdate';
+import { updateSources } from './databaseUpdate';
 const app = express();
 
 const { Pool } = pg
 
 //7 päivää
-const updateData = setInterval(update, 7 * 24 * 60 * 60 * 1000);
+const updateData = setInterval(updateSources, 7 * 24 * 60 * 60 * 1000);
 
 function StartUpdate(){
-    update(false);
+    updateSources();
     dataUpdated = Date.now()
 }
 
