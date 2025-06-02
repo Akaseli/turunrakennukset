@@ -10,7 +10,7 @@ const app = express();
 const { Pool } = pg
 
 //7 päivää
-const updateData = setInterval(updateSources, 7 * 24 * 60 * 60 * 1000);
+const updateData = setInterval(StartUpdate, 7 * 24 * 60 * 60 * 1000);
 
 function StartUpdate(){
     updateSources();
